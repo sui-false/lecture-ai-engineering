@@ -75,7 +75,66 @@ elif st.session_state.page == "履歴閲覧":
     ui.display_history_page()
 elif st.session_state.page == "サンプルデータ管理":
     ui.display_data_page()
+elif st.session_state.page == "バッチチャット":
+    if pipe:
+        st.subheader("複数の質問を入力してください (1行に1質問)")
+        batch_input = st.text_area("質問リスト", height=200)
+    if st.button("まとめて送信"):
+        if batch_input:
+            questions = [q.strip() for q in batch_input.split('\n') if q.strip()]
+        if questions:
+            st.info(f"送信された質問数: {len(questions)}")
+            with st.spinner("まとめて回答を生成中です..."):
+                responses, response_times = llm.generate_batch_responses(pipe, questions)
+                st.subheader("回答")
+                for i, (question, response, response_time) in enumerate(zip(questions, responses, esponse_times)):
+                    st.markdown(f"**質問 {i+1}:** {question}")
+                    st.markdown(f"**回答 {i+1}:** {response}")
+                    st.info(f"応答時間: {response_time:.2f}秒 (平均)")
+                    st.markdown("---")
+        else:
+            st.warning("質問が入力されていません。")
+    else:
+        st.warning("質問を入力してください。")
+else:
+    st.error("バッチチャット機能を利用できません。モデルの読み込みに失敗しました。")
 
 # --- フッターなど（任意） ---
 st.sidebar.markdown("---")
 st.sidebar.info("開発者: [Your Name]")
+
+
+
+# elif st.session_state.page == "バッチチャット":
+#   if pipe:
+#         st.subheader("複数の質問を入力してください (1行に1質問)")
+#         batch_input = st.text_area("質問リスト", height=200)
+#         if st.button("まとめて送信"):
+# +            if batch_input:
+# +                questions = [q.strip() for q in batch_input.split('\n') if q.strip()]
+# +                if questions:
+# 
+# st.info(f"送信された質問数: {len(questions)}")
+# 
+# with st.spinner("まとめて回答を生成中です..."):
+# 
+#     responses, response_times = llm.generate_batch_responses(pipe, questions)
+# 
+#     st.subheader("回答")
+# 
+#     for i, (question, response, response_time) in enumerate(zip(questions, responses, response_times)):
+# 
+#         st.markdown(f"**質問 {i+1}:** {question}")
+# 
+#         st.markdown(f"**回答 {i+1}:** {response}")
+# 
+#         st.info(f"応答時間: {response_time:.2f}秒 (平均)")
+# 
+#         st.markdown("---")
+# +                else:
+# 
+# st.warning("質問が入力されていません。")
+# +            else:
+# +                st.warning("質問を入力してください。")
+# +    else:
+# +        st.error("バッチチャット機能を利用できません。モデルの読み込みに失敗しました。")
