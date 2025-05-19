@@ -17,6 +17,7 @@ DATA_PATH = os.path.join(os.path.dirname(__file__), "../data/Titanic.csv")
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "../models")
 MODEL_PATH = os.path.join(MODEL_DIR, "titanic_model.pkl")
 OLD_MODEL_PATH = os.path.join(MODEL_DIR, "titanic_model_old.pkl") # 古いモデルのパス
+# 警告を抑制
 
 
 
