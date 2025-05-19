@@ -16,9 +16,8 @@ from sklearn.pipeline import Pipeline
 DATA_PATH = os.path.join(os.path.dirname(__file__), "../data/Titanic.csv")
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "../models")
 MODEL_PATH = os.path.join(MODEL_DIR, "titanic_model.pkl")
-OLD_MODEL_PATH = os.path.join(MODEL_DIR, "titanic_model_old.pkl") # 古いモデルのパス
+OLD_MODEL_PATH = os.path.join(MODEL_DIR, "titanic_model_old.pkl")  # 古いモデルのパス
 # 警告を抑制
-
 
 
 @pytest.fixture
@@ -94,7 +93,7 @@ def train_model(sample_data, preprocessor):
         ]
     )
 
-      # 古いモデルが存在する場合は保存しておく
+    # 古いモデルが存在する場合は保存しておく
     if os.path.exists(MODEL_PATH):
         os.makedirs(MODEL_DIR, exist_ok=True)
         os.rename(MODEL_PATH, OLD_MODEL_PATH)
@@ -176,9 +175,8 @@ def test_model_reproducibility(sample_data, preprocessor):
     predictions1 = model1.predict(X_test)
     predictions2 = model2.predict(X_test)
 
-    assert np.array_equal(
-        predictions1, predictions2
-    ), "モデルの予測結果に再現性がありません"
+    assert np.array_equal(predictions1, predictions2), "モデルの予測結果に再現性がありません"
+
 
 def test_model_accuracy_comparison(train_model):
     """新しいモデルと古いモデルの精度を比較"""
