@@ -16,6 +16,8 @@ from sklearn.pipeline import Pipeline
 DATA_PATH = os.path.join(os.path.dirname(__file__), "../data/Titanic.csv")
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "../models")
 MODEL_PATH = os.path.join(MODEL_DIR, "titanic_model.pkl")
+OLD_MODEL_PATH = os.path.join(MODEL_DIR, "titanic_model_old.pkl") # 古いモデルのパス
+
 
 
 @pytest.fixture
@@ -90,6 +92,11 @@ def train_model(sample_data, preprocessor):
             ("classifier", RandomForestClassifier(n_estimators=100, random_state=42)),
         ]
     )
+
+      # 古いモデルが存在する場合は保存しておく
+    if os.path.exists(MODEL_PATH):
+        os.makedirs(MODEL_DIR, exist_ok=True)
+        os.rename(MODEL_PATH, OLD_MODEL_PATH)
 
     # モデルの学習
     model.fit(X_train, y_train)
@@ -171,3 +178,30 @@ def test_model_reproducibility(sample_data, preprocessor):
     assert np.array_equal(
         predictions1, predictions2
     ), "モデルの予測結果に再現性がありません"
+
+def test_model_accuracy_comparison(train_model):
+    """新しいモデルと古いモデルの精度を比較"""
+    model, X_test, y_test = train_model
+
+    if os.path.exists(OLD_MODEL_PATH):
+        with open(OLD_MODEL_PATH, "rb") as f:
+            old_model = pickle.load(f)
+
+        # 新しいモデルの精度
+        new_predictions = model.predict(X_test)
+        new_accuracy = accuracy_score(y_test, new_predictions)
+
+        # 古いモデルの精度
+        old_predictions = old_model.predict(X_test)
+        old_accuracy = accuracy_score(y_test, old_predictions)
+
+        # 精度が大きく変わっていないか（許容範囲を設定）
+        accuracy_difference = abs(new_accuracy - old_accuracy)
+        tolerance = 0.05  # 例：精度差が5%以内であれば許容
+
+        assert accuracy_difference <= tolerance, (
+            f"モデルの精度が大きく変化しました: "
+            f"新しいモデルの精度={new_accuracy:.4f}, 古いモデルの精度={old_accuracy:.4f}, 差={accuracy_difference:.4f}"
+        )
+    else:
+        pytest.skip("古いモデルファイルが存在しないため、精度の比較をスキップします")
